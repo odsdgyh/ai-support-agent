@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--
+    Content-Security-Policy: запрещает inline-скрипты и ограничивает сетевые запросы
+    только API Google — даже при XSS ключ нельзя отправить на сторонний домен.
+    'unsafe-inline' в style-src нужен Tailwind Play CDN (он инжектирует <style>).
+    frame-ancestors / HSTS через <meta> не задаются — настройте их заголовками на хостинге.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://generativelanguage.googleapis.com; base-uri 'none'; form-action 'none'; object-src 'none'" />
+  <title>PolyAssist AI — ИИ-ассистент для 3D-моделирования, скульптинга и Game Dev</title>
+  <meta name="description" content="PolyAssist AI — BYOK ИИ-агент для 3D-художников и разработчиков игр: топология, скульптинг, шейдеры и оптимизация рендера." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/js/tailwind.config.js"></script>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+
+<body class="font-sans antialiased selection:bg-[var(--brutal-accent)] selection:text-white">
+
+  <div class="b-container min-h-screen flex flex-col">
+
+    <!-- ================================================================
+         Sticky Header (Brutalist Architectural Grid Bar)
+         ================================================================ -->
+    <header class="sticky top-0 z-40 b-surface b-border-b">
+      <div class="flex items-stretch justify-between min-h-[62px]">
+        <!-- Brand -->
+        <a href="#top" class="flex items-center gap-3 px-4 sm:px-6 b-border-r hover:bg-[var(--surface-alt)] transition shrink-0" aria-label="PolyAssist AI">
+          <div class="h-9 w-9 grid place-items-center b-accent-box b-border-2 font-mono font-extrabold text-sm shadow-[3px_3px_0_var(--shadow)]">
+            3D
+          </div>
+          <div class="leading-tight">
+            <div class="b-display text-base sm:text-lg tracking-tight">PolyAssist <span class="text-[var(--brutal-accent)]">// AI</span></div>
+            <div class="hidden sm:block text-[10px] font-mono font-bold uppercase tracking-wider b-muted" data-i18n="brandSub">3D PIPELINE // SUPPORT AGENT</div>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden lg:flex items-center gap-7 px-6 font-mono text-xs font-extrabold uppercase tracking-wider" aria-label="Primary Navigation">
+          <a href="#disciplines" class="py-1 border-b-2 border-transparent hover:border-[var(--brutal-accent)] transition" data-i18n="navDisciplines">[01] Дисциплины</a>
+          <a href="#workspace" class="py-1 border-b-2 border-transparent hover:border-[var(--brutal-accent)] transition" data-i18n="navWorkspace">[02] ИИ-Workspace</a>
+          <a href="#api-guide" class="py-1 border-b-2 border-transparent hover:border-[var(--brutal-accent)] transition" data-i18n="navByok">[03] BYOK Ключ (AQ.…)</a>
+        </nav>
+
+        <!-- Actions: Key Status + Language Switcher + Theme Switcher + Profile CTA -->
+        <div class="flex items-stretch ml-auto">
+          <!-- Динамический индикатор состояния ключа -->
+          <button id="keyStatus" type="button" data-open-modal
+            class="flex items-center gap-2 px-3 sm:px-4 b-border-l font-mono text-xs font-extrabold uppercase transition"
+            title="API Key Status">
+            <span id="keyStatusDot" class="h-2.5 w-2.5 rounded-full bg-[var(--brutal-accent)] pulse-amber"></span>
+            <span id="keyStatusText" class="hidden md:inline">NO API KEY CONNECTED</span>
+            <span id="keyStatusTextShort" class="md:hidden">NO KEY</span>
+          </button>
+
+          <!-- Переключатель языка RU / EN -->
+          <button id="langToggle" type="button"
+            class="flex items-center justify-center px-3 sm:px-3.5 b-border-l b-surface hover:bg-[var(--highlight)] hover:text-[var(--highlight-fg)] font-mono text-xs font-extrabold uppercase transition"
+            aria-label="Switch language RU / EN"
+            title="Switch language (RU / EN)">
+            <span id="langLabel">RU</span>
+          </button>
+
+          <!-- Переключатель Светлой / Тёмной темы (Light / Dark Brutalism) -->
+          <button id="themeToggle" type="button"
+            class="flex items-center gap-2 px-3 sm:px-4 b-border-l b-surface hover:bg-[var(--highlight)] hover:text-[var(--highlight-fg)] font-mono text-xs font-extrabold uppercase transition"
+            aria-label="Toggle Light and Dark Theme"
+            title="Toggle Theme (Light / Dark) · ⌘J">
+            <span id="themeIcon" class="text-sm leading-none" aria-hidden="true">☀</span>
+            <span id="themeLabel" class="hidden sm:inline">LIGHT</span>
+          </button>
+
+          <!-- Кнопка профиля и ключа -->
+          <button type="button" data-open-modal
+            class="hidden sm:inline-flex items-center gap-2 px-4 sm:px-5 b-border-l b-accent-box hover:opacity-90 font-mono text-xs font-extrabold uppercase transition">
+            <span id="headerCtaText">Подключить ключ</span>
+            <span class="px-1.5 py-0.5 text-[10px] bg-black/80 text-white border border-white/30">⌘K</span>
+          </button>
+
+          <!-- Мобильное меню -->
+          <button id="mobileMenuBtn" type="button" class="lg:hidden px-4 b-border-l b-surface hover:bg-[var(--surface-alt)]" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobileMenu" class="lg:hidden hidden b-border-t b-surface-alt px-4 py-4">
+        <nav class="flex flex-col gap-2 font-mono text-xs font-extrabold uppercase" aria-label="Mobile Navigation">
+          <a href="#disciplines" class="py-2 px-3 b-border-2 b-surface" data-i18n="navDisciplines">[01] Дисциплины</a>
+          <a href="#workspace" class="py-2 px-3 b-border-2 b-surface" data-i18n="navWorkspace">[02] ИИ-Workspace</a>
+          <a href="#api-guide" class="py-2 px-3 b-border-2 b-surface" data-i18n="navByok">[03] BYOK Ключ (AQ.…)</a>
+          <button type="button" data-open-modal class="mt-1 py-2.5 px-3 b-border-2 b-accent-box font-mono font-extrabold uppercase text-left" data-i18n="mobileProfileCta">
+            → Профиль и API-ключ [⌘K]
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top" class="flex-1">
+      <!-- ================================================================
+           Hero Section (Architectural 2-Column Brutalist Grid + 3D Viewport)
+           ================================================================ -->
+      <section class="grid lg:grid-cols-12 b-border-b">
+        <!-- Левая колонка (7 cols) -->
+        <div class="lg:col-span-7 p-6 sm:p-10 lg:p-12 lg:b-border-r flex flex-col justify-between">
+          <div>
+            <!-- Верхняя индексная плашка -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 b-border-b font-mono text-xs font-extrabold uppercase">
+              <span data-i18n="heroSpec">SPEC // REV 2.3 · 3D PIPELINE AI</span>
+              <a href="#workspace" class="b-tag hover:translate-x-0.5 transition">
+                <span class="h-2 w-2 rounded-full bg-[var(--brutal-accent)]"></span>
+                <span data-i18n="heroBadge">BYOK · Ключи AQ.… и AIza…</span>
+              </a>
+            </div>
+
+            <h1 class="b-display mt-7 text-4xl sm:text-5xl xl:text-[3.65rem] leading-[0.96]" data-i18n-html="heroTitleHtml">
+              ИИ-техартист для <mark class="b-mark">каждого полигона</mark> вашего пайплайна
+            </h1>
+
+            <p class="mt-6 text-base sm:text-lg b-muted max-w-2xl font-medium leading-relaxed" data-i18n-html="heroSubHtml">
+              Инженерный ИИ-ассистент для <strong>3D-моделирования</strong>, <strong>цифрового скульптинга</strong> и <strong>Game Dev</strong>. Диагностирует сетку по скриншотам, устраняет швы карт нормалей и пишет шейдеры HLSL/GLSL — напрямую через ваш собственный ключ Google AI Studio.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <a href="#workspace" class="b-btn b-btn-primary px-6 py-4 text-xs sm:text-sm">
+                <span data-i18n="heroBtnLaunch">Запустить ИИ-агента</span>
+                <span>→</span>
+              </a>
+              <button type="button" data-open-modal class="b-btn b-btn-secondary px-5 py-4 text-xs sm:text-sm">
+                <span data-i18n="heroBtnKey">Подключить API-ключ</span>
+                <kbd>⌘K</kbd>
+              </button>
+            </div>
+          </div>
+
+          <!-- Metric Strip -->
+          <dl class="mt-10 grid grid-cols-3 b-card">
+            <div class="p-3.5 sm:p-4 b-border-r">
+              <dt class="font-mono text-[10px] sm:text-[11px] font-bold uppercase b-muted" data-i18n="metric1Label">Специализации</dt>
+              <dd class="b-display text-lg sm:text-2xl mt-1" data-i18n="metric1Val">3 РЕЖИМА</dd>
+              <dd class="font-mono text-[10px] b-muted mt-0.5" data-i18n="metric1Sub">MODEL · SCULPT · DEV</dd>
+            </div>
+            <div class="p-3.5 sm:p-4 b-border-r">
+              <dt class="font-mono text-[10px] sm:text-[11px] font-bold uppercase b-muted" data-i18n="metric2Label">Тематический фильтр</dt>
+              <dd class="b-display text-lg sm:text-2xl mt-1 text-[var(--brutal-accent)]" data-i18n="metric2Val">100% 3D ONLY</dd>
+              <dd class="font-mono text-[10px] b-muted mt-0.5" data-i18n="metric2Sub">STRICT GUARDRAIL</dd>
+            </div>
+            <div class="p-3.5 sm:p-4">
+              <dt class="font-mono text-[10px] sm:text-[11px] font-bold uppercase b-muted" data-i18n="metric3Label">Приватность</dt>
+              <dd class="b-display text-lg sm:text-2xl mt-1" data-i18n="metric3Val">0-SERVER</dd>
+              <dd class="font-mono text-[10px] b-muted mt-0.5" data-i18n="metric3Sub">DIRECT GOOGLE API</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Правая колонка (5 cols): макет Viewport_Diagnostic.blend -->
+        <div class="lg:col-span-5 p-6 sm:p-8 lg:p-10 b-surface-alt b-border-t lg:border-t-0 flex flex-col justify-center">
+          <div class="b-card overflow-hidden">
+            <!-- Заголовок окна 3D-вьюпорта -->
+            <div class="flex items-center justify-between gap-2 px-4 py-2.5 b-border-b bg-[var(--highlight)] text-[var(--highlight-fg)] font-mono text-xs font-extrabold uppercase">
+              <div class="flex items-center gap-2">
+                <span class="inline-block h-3 w-3 b-accent-box border-2 border-black"></span>
+                <span>VIEWPORT_DIAGNOSTIC.BLEND</span>
+              </div>
+              <div class="flex gap-1 font-mono text-[10px]">
+                <button type="button" data-shading="wire" class="shading-btn px-2 py-0.5 border-2 border-black bg-black text-white font-extrabold uppercase">WIRE</button>
+                <button type="button" data-shading="solid" class="shading-btn px-2 py-0.5 border-2 border-black bg-white text-black font-extrabold uppercase">SOLID</button>
+              </div>
+            </div>
+
+            <!-- Интерактивный 3D-вьюпорт -->
+            <div id="viewport" class="relative viewport-grid h-[330px] sm:h-[360px] cursor-grab active:cursor-grabbing select-none touch-none text-white" title="LMB Drag · Orbit 3D Mesh">
+              <!-- HUD: левый верхний угол -->
+              <div class="absolute top-3 left-3 bg-black/85 border border-white/25 px-2.5 py-1 font-mono text-[10px] leading-4 text-zinc-200 pointer-events-none">
+                <div class="font-bold text-white uppercase">PERSPECTIVE · LOCAL</div>
+                <div>(1) Collection · <span class="text-[#E5B85B]">SM_Sphere_LOD0</span></div>
+              </div>
+
+              <!-- HUD: правый верхний угол -->
+              <div class="absolute top-3 right-3 b-status-ok border-2 border-black px-2.5 py-1 font-mono text-[10px] font-extrabold text-right leading-4 pointer-events-none shadow-[3px_3px_0_#000]">
+                <div>TRIS: 14,280 · QUADS: 100%</div>
+                <div>N-GONS: 0 · POLES: 2 · UV: <span id="uvStat">0.98</span></div>
+              </div>
+
+              <svg id="meshSvg" viewBox="0 0 320 300" class="absolute inset-0 m-auto h-full w-full" aria-label="3D Mesh Wireframe">
+                <path id="meshBack" fill="none" stroke="#D9532F" stroke-opacity="0.32" stroke-width="0.85" />
+                <g id="meshFaces"></g>
+                <path id="meshFront" fill="none" stroke="#E5B85B" stroke-opacity="0.92" stroke-width="1.05" />
+                <g id="meshVerts"></g>
+              </svg>
+
+              <!-- Индикатор осей X / Y / Z -->
+              <svg class="absolute bottom-3 left-3 h-16 w-16 pointer-events-none" viewBox="0 0 64 64" aria-hidden="true">
+                <line id="axX" x1="32" y1="32" x2="56" y2="38" stroke="#D9532F" stroke-width="2.4" stroke-linecap="square" />
+                <line id="axY" x1="32" y1="32" x2="44" y2="18" stroke="#34A874" stroke-width="2.4" stroke-linecap="square" />
+                <line id="axZ" x1="32" y1="32" x2="32" y2="6" stroke="#3898EC" stroke-width="2.4" stroke-linecap="square" />
+                <g font-family="JetBrains Mono" font-size="8" font-weight="800" text-anchor="middle" dominant-baseline="middle">
+                  <circle id="axXc" cx="56" cy="38" r="6" fill="#D9532F" /><text id="axXt" x="56" y="38" fill="#fff">X</text>
+                  <circle id="axYc" cx="44" cy="18" r="6" fill="#34A874" /><text id="axYt" x="44" y="18" fill="#000">Y</text>
+                  <circle id="axZc" cx="32" cy="6" r="6" fill="#3898EC" /><text id="axZt" x="32" y="6" fill="#000">Z</text>
+                </g>
+              </svg>
+
+              <div class="absolute bottom-3 right-3 bg-black/85 text-[#E5B85B] border border-[#E5B85B]/60 px-2 py-0.5 font-mono text-[10px] font-bold uppercase pointer-events-none">
+                LMB DRAG · ORBIT
+              </div>
+            </div>
+
+            <!-- Вердикт диагностики сетки -->
+            <div class="b-border-t b-surface p-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2 font-mono text-xs font-extrabold uppercase">
+                  <span class="px-1.5 py-0.5 b-accent-box border border-black" data-i18n="vpVerdictBadge">✦ AI VERDICT</span>
+                  <span data-i18n="vpVerdictTitle">TOPOLOGY VERDICT</span>
+                </div>
+                <span class="px-2 py-0.5 b-status-ok border-2 border-black font-mono text-[10px] font-extrabold uppercase" data-i18n="vpVerdictStatus">
+                  SUBD READY · PASS
+                </span>
+              </div>
+              <p class="mt-2 text-xs leading-relaxed b-muted font-medium" data-i18n-html="vpVerdictTextHtml">
+                Чистая квад-сетка: 2 полюса на осях вращения. Добавьте удерживающие лупы (<code class="font-mono font-bold">Ctrl+R</code>) у полюсов перед <code class="font-mono font-bold">Subdivision Surface</code> (lvl 2), чтобы избежать стягивания шейдинга.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           Brutalist Infinite Marquee Tape (Стек DCC и движков)
+           ================================================================ -->
+      <div class="b-ink-bar b-border-b py-3 overflow-hidden">
+        <div class="marquee-track items-center gap-8 font-mono text-xs font-extrabold uppercase tracking-wider px-4">
+          <span><b class="text-[var(--highlight)]">■</b> BLENDER 4.X · BPY SCRIPTING</span>
+          <span><b class="text-[var(--brutal-accent)]">■</b> AUTODESK MAYA · MEL</span>
+          <span><b class="text-[var(--highlight)]">■</b> MAXON ZBRUSH · ZREMESHER</span>
+          <span><b class="text-[var(--brutal-accent)]">■</b> UNREAL ENGINE 5 · NANITE &amp; LUMEN</span>
+          <span><b class="text-[var(--highlight)]">■</b> UNITY 6 · HLSL / SHADER GRAPH</span>
+          <span><b class="text-[var(--brutal-accent)]">■</b> GODOT 4 · GDSHADER</span>
+          <span><b class="text-[var(--highlight)]">■</b> SUBSTANCE 3D PAINTER · PBR</span>
+          <span><b class="text-[var(--brutal-accent)]">■</b> SIDEFX HOUDINI · VEX</span>
+          <span><b class="text-[var(--highlight)]">■</b> MARMOSET TOOLBAG · MIKKTSPACE</span>
+          <!-- Дубликат для бесшовного цикла -->
+          <span aria-hidden="true"><b class="text-[var(--highlight)]">■</b> BLENDER 4.X · BPY SCRIPTING</span>
+          <span aria-hidden="true"><b class="text-[var(--brutal-accent)]">■</b> AUTODESK MAYA · MEL</span>
+          <span aria-hidden="true"><b class="text-[var(--highlight)]">■</b> MAXON ZBRUSH · ZREMESHER</span>
+          <span aria-hidden="true"><b class="text-[var(--brutal-accent)]">■</b> UNREAL ENGINE 5 · NANITE &amp; LUMEN</span>
+          <span aria-hidden="true"><b class="text-[var(--highlight)]">■</b> UNITY 6 · HLSL / SHADER GRAPH</span>
+          <span aria-hidden="true"><b class="text-[var(--brutal-accent)]">■</b> GODOT 4 · GDSHADER</span>
+          <span aria-hidden="true"><b class="text-[var(--highlight)]">■</b> SUBSTANCE 3D PAINTER · PBR</span>
+          <span aria-hidden="true"><b class="text-[var(--brutal-accent)]">■</b> SIDEFX HOUDINI · VEX</span>
+          <span aria-hidden="true"><b class="text-[var(--highlight)]">■</b> MARMOSET TOOLBAG · MIKKTSPACE</span>
+        </div>
+      </div>
+
+      <!-- ================================================================
+           Section [01]: 3 столпа 3D-пайплайна + Guardrail (#disciplines)
+           ================================================================ -->
+      <section id="disciplines" class="scroll-mt-16 b-border-b">
+        <!-- Заголовок секции -->
+        <div class="p-6 sm:px-10 sm:py-8 b-surface b-border-b flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div class="b-tag" data-i18n="sec1Tag">SECTION [01] // DOMAIN SYSTEM PROMPTS</div>
+            <h2 class="b-display mt-3 text-3xl sm:text-4xl" data-i18n="sec1Title">Три столпа 3D-пайплайна</h2>
+            <p class="mt-2 text-sm sm:text-base b-muted max-w-2xl font-medium" data-i18n="sec1Sub">
+              Под каждую дисциплину маршрутизатор автоматически инжектирует системный промпт профильного сеньор-специалиста.
+            </p>
+          </div>
+          <div class="font-mono text-xs font-extrabold uppercase b-muted" data-i18n="sec1Hint">
+            Нажмите на кейс для теста в 1 клик ↓
+          </div>
+        </div>
+
+        <!-- 3 карточки дисциплин -->
+        <div class="p-6 sm:p-10 grid md:grid-cols-2 lg:grid-cols-3 gap-7 b-border-b">
+          <!-- Card 1: 3D Modeling -->
+          <article class="b-card b-card-interactive p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 b-border-b font-mono text-xs font-extrabold uppercase">
+                <span class="b-badge-ink">MODE 01</span>
+                <span>SUBD · UV · BPY</span>
+              </div>
+
+              <h3 class="b-display mt-5 text-2xl" data-i18n="card1Title">3D Modeling &amp; Topology</h3>
+              <p class="mt-1 font-mono text-xs font-bold uppercase b-muted">Blender · Maya · 3ds Max</p>
+
+              <ul class="mt-5 space-y-2.5 text-sm font-medium">
+                <li class="flex gap-2.5"><span class="text-[var(--brutal-accent)] font-mono font-extrabold">■</span><span data-i18n="card1Li1">Чистая квад-топология, устранение N-гонов и полюсов на криволинейных поверхностях.</span></li>
+                <li class="flex gap-2.5"><span class="text-[var(--brutal-accent)] font-mono font-extrabold">■</span><span data-i18n="card1Li2">Расстановка support loops под Subdivision Surface и исправление шейдинга после Boolean.</span></li>
+                <li class="flex gap-2.5"><span class="text-[var(--brutal-accent)] font-mono font-extrabold">■</span><span data-i18n-html="card1Li3Html">Упаковка UV-островов с равномерным Texel Density и автоматизация на Python (<code class="font-mono font-bold">bpy</code>).</span></li>
+              </ul>
+            </div>
+
+            <div class="mt-6 pt-4 b-border-t">
+              <div class="b-surface-alt b-border-2 p-3 font-mono text-[11px] font-bold" data-i18n-html="card1CaseHtml">
+                <span class="text-[var(--brutal-accent)]">CASE:</span> Bevel + Boolean shading → Weighted Normals + Auto Smooth 30°
+              </div>
+              <button type="button" class="quick-prompt mt-3 w-full px-3.5 py-2.5 text-xs uppercase flex items-center justify-between"
+                data-domain="3D Modeling"
+                data-prompt-key="qp1Prompt">
+                <span data-i18n="cardRunBtn">Запустить этот кейс в агенте</span>
+                <span>→</span>
+              </button>
+            </div>
+          </article>
+
+          <!-- Card 2: 3D Sculpting -->
+          <article class="b-card b-card-interactive p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 b-border-b font-mono text-xs font-extrabold uppercase">
+                <span class="b-badge-ink">MODE 02</span>
+                <span>HIGH→LOW · EXR</span>
+              </div>
+
+              <h3 class="b-display mt-5 text-2xl" data-i18n="card2Title">3D Digital Sculpting</h3>
+              <p class="mt-1 font-mono text-xs font-bold uppercase b-muted">ZBrush · Mudbox · Nomad Sculpt</p>
+
+              <ul class="mt-5 space-y-2.5 text-sm font-medium">
+                <li class="flex gap-2.5"><span class="text-[var(--brutal-accent)] font-mono font-extrabold">■</span><span data-i18n="card2Li1">Пайплайн Dynamesh → ZRemesher → Subdivision с чистой проекцией микрорельефа.</span></li>
+                <li class="flex gap-2.5"><span class="text-[var(--brutal-accent)] font-mono font-extrabold">■</span><span data-i18n="card2Li2">Запекание High-Poly на Low-Poly без швов и экспорт 32-битных карт смещения (EXR Displacement).</span></li>
+                <li class="flex gap-2.5"><span class="text-[var(--brutal-accent)] font-mono font-extrabold">■</span><span data-i18n="card2Li3">Анатомические ориентиры, читаемость силуэта и баланс первичных/вторичных форм.</span></li>
+              </ul>
+            </div>
+
+            <div class="mt-6 pt-4 b-border-t">
+              <div class="b-surface-alt b-border-2 p-3 font-mono text-[11px] font-bold" data-i18n-html="card2CaseHtml">
+                <span class="text-[var(--brutal-accent)]">CASE:</span> Швы Normal Map → Единый MikkTSpace + Cage + Flip Y
+              </div>
+              <button type="button" class="quick-prompt mt-3 w-full px-3.5 py-2.5 text-xs uppercase flex items-center justify-between"
+                data-domain="3D Sculpting"
+                data-prompt-key="qp2Prompt">
+                <span data-i18n="cardRunBtn">Запустить этот кейс в агенте</span>
+                <span>→</span>
+              </button>
+            </div>
+          </article>
+
+          <!-- Card 3: Game Dev & Shaders -->
+          <article class="b-card b-card-interactive p-6 flex flex-col justify-between md:col-span-2 lg:col-span-1">
+            <div>
+              <div class="flex items-center justify-between pb-3 b-border-b font-mono text-xs font-extrabold uppercase">
+                <span class="b-badge-ink">MODE 03</span>
+                <span>HLSL · GLSL · UE5</span>
+              </div>
+
+              <h3 class="b-display mt-5 text-2xl" data-i18n="card3Title">Game Dev &amp; Shaders</h3>
+              <p class="mt-1 font-mono text-xs font-bold uppercase b-muted">Unreal Engine 5 · Unity · Godot</p>
+
+              <ul class="mt-5 space-y-2.5 text-sm font-medium">
+                <li class="flex gap-2.5"><span class="text-[var(--brutal-accent)] font-mono font-extrabold">■</span><span data-i18n="card3Li1">Оптимизация Draw Calls, настройка Nanite / Lumen, GPU Instancing и LOD-группы.</span></li>
+                <li class="flex gap-2.5"><span class="text-[var(--brutal-accent)] font-mono font-extrabold">■</span><span data-i18n-html="card3Li2Html">Математика шейдеров HLSL / GLSL (PBR, Fresnel, трипланарный маппинг, <code class="font-mono font-bold">I = max(0, N·L)</code>).</span></li>
+                <li class="flex gap-2.5"><span class="text-[var(--brutal-accent)] font-mono font-extrabold">■</span><span data-i18n="card3Li3">Архитектура игровых систем на C# / C++ и профилирование рендер-пайплайна.</span></li>
+              </ul>
+            </div>
+
+            <div class="mt-6 pt-4 b-border-t">
+              <div class="b-surface-alt b-border-2 p-3 font-mono text-[11px] font-bold" data-i18n-html="card3CaseHtml">
+                <span class="text-[var(--brutal-accent)]">SHADER:</span> Fresnel Rim → pow(1.0 - saturate(dot(N, V)), k)
+              </div>
+              <button type="button" class="quick-prompt mt-3 w-full px-3.5 py-2.5 text-xs uppercase flex items-center justify-between"
+                data-domain="Game Dev"
+                data-prompt-key="qp3Prompt">
+                <span data-i18n="cardRunBtn">Запустить этот кейс в агенте</span>
+                <span>→</span>
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <!-- Инженерная полоса: Multimodal Vision + Strict 3D Guardrail -->
+        <div class="grid lg:grid-cols-12 b-surface-alt">
+          <div class="lg:col-span-7 p-6 sm:p-8 lg:b-border-r flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div>
+              <span class="b-tag" data-i18n="visionTag">MULTIMODAL VISION // PNG · JPEG · WEBP</span>
+              <h3 class="b-display mt-3 text-xl" data-i18n="visionTitle">Диагностика по скриншотам вьюпорта</h3>
+              <p class="mt-1.5 text-sm b-muted font-medium leading-relaxed" data-i18n="visionText">
+                Прикрепите до 3 скриншотов сетки, UV-развёртки или графа нод в Shader Graph / Material Editor. ИИ-агент укажет на проблемные полюса, растяжки текселей и узкие места шейдера.
+              </p>
+            </div>
+            <div class="shrink-0 b-box p-3.5 font-mono text-xs font-bold w-full sm:w-56 space-y-1.5">
+              <div class="flex justify-between"><span>WIREFRAME:</span><span class="text-[var(--brutal-accent)]">✓ QUADS</span></div>
+              <div class="flex justify-between"><span>UV STRETCH:</span><span>✓ &lt; 2.1%</span></div>
+              <div class="flex justify-between"><span>SHADER OPS:</span><span>✓ 68 INSTR</span></div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 p-6 sm:p-8 b-border-t lg:border-t-0 flex flex-col justify-center">
+            <div class="flex items-center justify-between gap-2">
+              <span class="b-tag" data-i18n="guardrailTag">STRICT 3D GUARDRAIL</span>
+              <code class="font-mono text-xs font-extrabold px-2 py-0.5 b-badge-ink">[OFF_TOPIC]</code>
+            </div>
+            <h3 class="b-display mt-3 text-xl" data-i18n="guardrailTitle">Защита от оффтопа и промпт-инъекций</h3>
+            <p class="mt-1.5 text-sm b-muted font-medium leading-relaxed" data-i18n="guardrailText">
+              Агент консультирует только по 3D, рендеру и Game Dev. Нецелевые вопросы и попытки сменить системную роль отклоняются без засорения истории диалога.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           Section [02]: Рабочее пространство агента (#workspace)
+           ================================================================ -->
+      <section id="workspace" class="scroll-mt-16 b-border-b">
+        <!-- Заголовок секции -->
+        <div class="p-6 sm:px-10 sm:py-8 b-surface b-border-b flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <div class="b-tag" data-i18n="sec2Tag">SECTION [02] // INTERACTIVE 3D WORKSPACE</div>
+            <h2 class="b-display mt-3 text-3xl sm:text-4xl" data-i18n="sec2Title">Рабочее пространство агента</h2>
+            <p class="mt-2 text-sm sm:text-base b-muted max-w-2xl font-medium" data-i18n="sec2Sub">
+              Выберите профильную 3D-дисциплину — запрос уйдёт напрямую в Google AI Studio с вашим ключом и системным промптом эксперта.
+            </p>
+          </div>
+
+          <div id="profileBadge" class="hidden items-center gap-3 b-box px-4 py-2.5 text-sm">
+            <div class="h-8 w-8 grid place-items-center b-accent-box border-2 border-black font-mono font-extrabold text-xs" id="profileAvatar">PA</div>
+            <div class="leading-tight font-mono">
+              <div class="font-extrabold text-xs uppercase" id="profileName">—</div>
+              <div class="text-[11px] b-muted" id="profileKey">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Рабочая сетка: Сайдбар + Чат -->
+        <div class="p-6 sm:p-10 grid lg:grid-cols-[340px_1fr] gap-7 items-start">
+          <!-- Левая колонка: Панель управления агентом (без упоминания версии движка) -->
+          <aside class="b-card p-5 lg:sticky lg:top-20 space-y-6">
+            <!-- Выбор специализации -->
+            <div>
+              <label for="domainSelect" class="block pb-2 b-border-b mb-3 font-mono text-xs font-extrabold uppercase" data-i18n="domainLabel">
+                Специализация (System Prompt)
+              </label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 h-3 w-3 border border-black accent-bg" aria-hidden="true"></span>
+                <select id="domainSelect" class="b-input w-full appearance-none pl-9 pr-9 py-2.5 font-mono text-xs font-extrabold uppercase cursor-pointer">
+                  <option value="3D Modeling" data-i18n="domainOptModeling">3D Modeling — топология и UV</option>
+                  <option value="3D Sculpting" data-i18n="domainOptSculpting">3D Sculpting — цифровой скульптинг</option>
+                  <option value="Game Dev" data-i18n="domainOptGameDev">Game Dev — движки и шейдеры</option>
+                </select>
+                <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+              <p class="mt-2.5 text-xs leading-relaxed b-muted font-medium" id="domainHint">—</p>
+            </div>
+
+            <!-- Статус ключа в сайдбаре -->
+            <div class="b-surface-alt b-border-2 p-4 text-xs" id="keyPanel">
+              <div class="flex items-center gap-2 font-mono font-extrabold uppercase" id="keyPanelTitle">
+                <span class="h-2.5 w-2.5 rounded-full bg-[var(--brutal-accent)]"></span>Ключ не подключён
+              </div>
+              <p class="mt-2 leading-relaxed font-medium" id="keyPanelText">
+                Без ключа агент не сможет обработать запрос. Ключ хранится только в вашем браузере.
+              </p>
+              <button type="button" data-open-modal class="b-btn b-btn-primary mt-3.5 w-full py-2.5 text-xs" id="keyPanelBtn">
+                Подключить ключ
+              </button>
+            </div>
+          </aside>
+
+          <!-- Правая колонка: Окно чата -->
+          <div class="b-card flex flex-col overflow-hidden min-h-[620px] lg:h-[750px]">
+            <!-- Шапка чата -->
+            <div class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3.5 b-border-b b-surface-alt">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="h-9 w-9 shrink-0 grid place-items-center b-accent-box b-border-2 font-mono font-extrabold text-sm shadow-[2px_2px_0_var(--shadow)]">✦</span>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="b-display text-base truncate">PolyAssist Agent</span>
+                    <span class="hidden sm:inline-block b-badge-ink">3D ONLY</span>
+                  </div>
+                  <div class="text-[11px] font-mono font-bold uppercase truncate">
+                    <span id="chatDomainLabel" class="accent-text font-extrabold">3D Modeling</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="hidden sm:inline b-surface b-border-2 px-2.5 py-1 text-[11px] font-mono font-extrabold uppercase" id="sessionTokens">0 tokens</span>
+                <button type="button" id="clearChat" class="b-surface b-border-2 px-3 py-1.5 font-mono text-xs font-extrabold uppercase hover:bg-[var(--brutal-accent)] hover:text-white transition" data-i18n="clearBtn">
+                  Очистить
+                </button>
+              </div>
+            </div>
+
+            <!-- История сообщений -->
+            <div id="chatLog" class="chat-scroll flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-5" aria-live="polite"></div>
+
+            <!-- Quick Prompts -->
+            <div class="px-4 sm:px-5 pt-3 b-border-t b-surface-alt">
+              <div class="flex items-center justify-between mb-2 font-mono text-[10px] font-extrabold uppercase">
+                <span data-i18n="qpTitle">QUICK PROMPTS // ТЕСТ В 1 КЛИК</span>
+                <span class="hidden sm:inline b-muted" data-i18n="qpSub">АВТОПЕРЕКЛЮЧЕНИЕ ДИСЦИПЛИНЫ</span>
+              </div>
+              <div class="flex gap-2.5 overflow-x-auto thin-scroll pb-2.5">
+                <button type="button" class="quick-prompt shrink-0 px-3 py-1.5 text-xs text-left" data-domain="3D Modeling" data-prompt-key="qp1Prompt" data-i18n="qp1Label">
+                  ⬡ Артефакты после Boolean в Blender
+                </button>
+                <button type="button" class="quick-prompt shrink-0 px-3 py-1.5 text-xs text-left" data-domain="3D Sculpting" data-prompt-key="qp2Prompt" data-i18n="qp2Label">
+                  ◍ Швы normal map: ZBrush → UE5
+                </button>
+                <button type="button" class="quick-prompt shrink-0 px-3 py-1.5 text-xs text-left" data-domain="Game Dev" data-prompt-key="qp3Prompt" data-i18n="qp3Label">
+                  ◈ Формула Fresnel-шейдера (HLSL)
+                </button>
+              </div>
+            </div>
+
+            <!-- Форма ввода -->
+            <form id="chatForm" class="p-3 sm:p-4 b-border-t b-surface">
+              <div id="attachPreview" class="hidden flex-wrap gap-2 mb-2"></div>
+              <div class="flex items-end gap-2 b-border-2 b-surface-alt p-2">
+                <label id="attachLabel" class="shrink-0 cursor-pointer b-surface b-border-2 p-2 hover:bg-[var(--highlight)] hover:text-[var(--highlight-fg)] transition" title="Прикрепить скриншот (wireframe, UV, Shader Graph)">
+                  <input type="file" id="attachInput" accept="image/png,image/jpeg,image/webp" multiple class="sr-only" />
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m21 12-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6L15 7.6"/></svg>
+                </label>
+                <textarea id="chatInput" rows="1" maxlength="6000" aria-label="Message" placeholder="Опишите проблему с мешем, скульптом или шейдером…" class="flex-1 resize-none bg-transparent px-2 py-2 text-sm font-medium focus:outline-none max-h-40"></textarea>
+                <button type="submit" id="sendBtn" class="b-btn b-btn-primary shrink-0 px-4 py-2.5 text-xs sm:text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+                  <span class="hidden sm:inline" id="sendBtnLabel">Отправить</span>
+                  <span>→</span>
+                </button>
+              </div>
+              <div class="mt-2.5 flex flex-wrap justify-between gap-2 text-[11px] font-mono font-bold uppercase b-muted">
+                <span data-i18n-html="shortcutsHintHtml"><kbd>Enter</kbd> отправить · <kbd>Shift+Enter</kbd> строка · <kbd>⌘K</kbd> ключ · <kbd>⌘J</kbd> тема</span>
+                <span><span data-i18n="scopeCounterPrefix">ТОЛЬКО 3D И GAME DEV · </span><span id="charCounter">0</span>/6000</span>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           Section [03]: BYOK Guide & Security (#api-guide)
+           ================================================================ -->
+      <section id="api-guide" class="scroll-mt-16">
+        <div class="p-6 sm:px-10 sm:py-8 b-surface b-border-b">
+          <div class="b-tag" data-i18n="sec3Tag">SECTION [03] // ZERO-TRUST BYOK VAULT</div>
+          <h2 class="b-display mt-3 text-3xl sm:text-4xl" data-i18n="sec3Title">Ключ Google AI Studio за 3 шага</h2>
+          <p class="mt-2 text-sm sm:text-base b-muted max-w-2xl font-medium" data-i18n-html="sec3SubHtml">
+            Вы платите Google напрямую по своему тарифу, а ключ никогда не покидает ваш браузер — кроме прямых запросов к <code class="font-mono font-bold">generativelanguage.googleapis.com</code>.
+          </p>
+        </div>
+
+        <ol class="p-6 sm:p-10 grid md:grid-cols-3 gap-7">
+          <li class="b-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 b-border-b font-mono text-xs font-extrabold uppercase">
+                <span class="b-badge-ink">STEP 01</span>
+                <span>AISTUDIO.GOOGLE.COM</span>
+              </div>
+              <h3 class="b-display mt-5 text-xl" data-i18n="step1Title">Откройте Google AI Studio</h3>
+              <p class="mt-2 text-sm b-muted font-medium leading-relaxed" data-i18n-html="step1TextHtml">
+                Войдите в свой Google-аккаунт и перейдите в раздел выпуска ключей <strong>Get API key</strong>.
+              </p>
+            </div>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="b-btn b-btn-secondary mt-6 px-4 py-2.5 text-xs w-full">
+              <span data-i18n="step1Btn">Открыть Google AI Studio</span>
+              <span>↗</span>
+            </a>
+          </li>
+
+          <li class="b-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 b-border-b font-mono text-xs font-extrabold uppercase">
+                <span class="b-badge-ink">STEP 02</span>
+                <span>AUTH KEY // LEGACY</span>
+              </div>
+              <h3 class="b-display mt-5 text-xl" data-i18n="step2Title">Скопируйте API-ключ</h3>
+              <p class="mt-2 text-sm b-muted font-medium leading-relaxed" data-i18n-html="step2TextHtml">
+                Поддерживаются как новые сервисные ключи <code class="font-mono font-bold">AQ.…</code>, так и классические <code class="font-mono font-bold">AIza…</code>:
+              </p>
+            </div>
+            <div class="mt-6 bg-[#101215] text-[var(--code-fg)] b-border-2 px-3 py-2.5 font-mono text-xs font-bold truncate">
+              AQ.Ab8RN6K••••••••••••••••••••••••••••
+            </div>
+          </li>
+
+          <li class="b-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 b-border-b font-mono text-xs font-extrabold uppercase">
+                <span class="b-badge-ink">STEP 03</span>
+                <span>MODELS.LIST VERIFY</span>
+              </div>
+              <h3 class="b-display mt-5 text-xl" data-i18n="step3Title">Проверьте и сохраните</h3>
+              <p class="mt-2 text-sm b-muted font-medium leading-relaxed" data-i18n-html="step3TextHtml">
+                Вставьте ключ в окно профиля — мы проверим его запросом <code class="font-mono font-bold">models.list</code> и сохраним в браузере.
+              </p>
+            </div>
+            <button type="button" data-open-modal class="b-btn b-btn-highlight mt-6 px-4 py-2.5 text-xs w-full">
+              <span data-i18n="step3Btn">Открыть профиль [⌘K]</span>
+            </button>
+          </li>
+        </ol>
+
+        <!-- Предупреждение о безопасности -->
+        <div class="px-6 sm:px-10 pb-10">
+          <div class="b-box p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <span class="b-badge-ink shrink-0">SECURITY // CSP + VAULT</span>
+            <p class="text-xs sm:text-sm font-medium leading-relaxed" data-i18n-html="secCalloutHtml">
+              По умолчанию ключ хранится только в <code class="font-mono font-bold">sessionStorage</code> до закрытия вкладки, а строгая политика <code class="font-mono font-bold">Content-Security-Policy</code> разрешает сетевые соединения исключительно с доменом Google API.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================================================================
+         Footer
+         ================================================================ -->
+    <footer class="b-surface b-border-t px-6 sm:px-10 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs font-bold uppercase">
+      <div data-i18n="footerCopy">© 2026 POLYASSIST AI // BRUTALISM EDITION · 3D &amp; GAME DEV SUPPORT</div>
+      <div class="flex items-center gap-6">
+        <a href="#disciplines" class="hover:text-[var(--brutal-accent)]" data-i18n="navDisciplines">[01] Дисциплины</a>
+        <a href="#workspace" class="hover:text-[var(--brutal-accent)]" data-i18n="navWorkspace">[02] ИИ-Workspace</a>
+        <a href="#api-guide" class="hover:text-[var(--brutal-accent)]" data-i18n="navByok">[03] BYOK Ключ (AQ.…)</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ================================================================
+       Modal: Профиль и хранилище ключей (Brutalist Dialog)
+       ================================================================ -->
+  <div id="apiKeyModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="absolute inset-0 bg-black/75" data-close-modal></div>
+    <div class="relative min-h-full flex items-center justify-center p-4">
+      <div class="relative w-full max-w-lg b-card overflow-hidden">
+        <!-- Верхняя плашка модального окна -->
+        <div class="flex items-center justify-between px-5 py-3 b-border-b bg-[var(--highlight)] text-[var(--highlight-fg)] font-mono text-xs font-extrabold uppercase">
+          <span data-i18n="modalBar">BYOK VAULT // ПРОФИЛЬ И API-КЛЮЧ</span>
+          <button type="button" data-close-modal class="px-2 py-0.5 bg-black text-white border border-black font-mono text-xs font-extrabold" aria-label="Close">
+            ✕ ESC
+          </button>
+        </div>
+
+        <div class="p-6 sm:p-7">
+          <h2 id="modalTitle" class="b-display text-2xl" data-i18n="modalTitle">Настройка профиля и ключа</h2>
+          <p class="mt-1 text-xs sm:text-sm b-muted font-medium" data-i18n="modalSub">Данные остаются в вашем браузере и используются только для прямых запросов к Google AI Studio.</p>
+
+          <form id="profileForm" class="mt-6 space-y-5" novalidate>
+            <div>
+              <label for="usernameInput" class="block font-mono text-xs font-extrabold uppercase" data-i18n="modalNickLabel">Никнейм 3D-художника / разработчика</label>
+              <input id="usernameInput" type="text" maxlength="40" autocomplete="nickname" placeholder="PolySculptor_99"
+                class="b-input mt-1.5 w-full px-3.5 py-2.5 text-sm font-semibold" />
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between">
+                <label for="apiKeyInput" class="block font-mono text-xs font-extrabold uppercase" data-i18n="modalKeyLabel">API-ключ Google AI Studio</label>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="font-mono text-xs font-extrabold uppercase text-[var(--brutal-accent)] underline" data-i18n="modalGetKey">Получить ключ ↗</a>
+              </div>
+              <div class="relative mt-1.5">
+                <input id="apiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="AQ.Ab…"
+                  class="b-input w-full pl-3.5 pr-11 py-2.5 font-mono text-sm font-bold" />
+                <button type="button" id="toggleKeyVisibility" class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 b-muted hover:text-[var(--brutal-accent)]" aria-label="Show key">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <p id="keyFeedback" class="mt-2 text-xs b-muted font-medium min-h-[1rem]"></p>
+              <label class="mt-3 flex items-start gap-2.5 text-xs font-medium cursor-pointer select-none">
+                <input type="checkbox" id="rememberKeyInput" class="mt-0.5 h-4 w-4 accent-[var(--brutal-accent)]" />
+                <span data-i18n-html="modalRememberHtml">Запомнить ключ на этом устройстве <span class="b-muted">(иначе ключ хранится только до закрытия вкладки)</span></span>
+              </label>
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row gap-2.5 pt-2">
+              <button type="button" id="removeKeyBtn" class="b-btn hidden sm:mr-auto bg-[#FFE5E0] text-[#1A0000] px-4 py-2.5 text-xs" data-i18n="modalRemoveBtn">Удалить ключ</button>
+              <button type="button" data-close-modal class="b-btn b-btn-secondary px-4 py-2.5 text-xs" data-i18n="modalCancelBtn">Отмена</button>
+              <button type="submit" id="saveProfileBtn" class="b-btn b-btn-primary px-5 py-2.5 text-xs disabled:opacity-50">
+                <span id="saveProfileLabel" data-i18n="modalSaveBtn">Проверить и сохранить</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" role="status" aria-live="polite" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] hidden b-card px-4 py-2.5 font-mono text-xs font-extrabold uppercase"></div>
+
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

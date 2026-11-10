@@ -1,0 +1,453 @@
+/* ==========================================================================
+   PolyAssist AI — Brutalism Website Style (Light Swiss Paper & Dark Industrial)
+   Based on yanliudesign/design-style-skill (#01 Brutalism / #21 Industrial)
+   ========================================================================== */
+
+:root {
+  /* Light Theme (Default): Swiss / Editorial Brutalism */
+  --bg: #F4F0EA;
+  --surface: #FFFFFF;
+  --surface-alt: #EAE4DC;
+  --ink: #0D0D0D;
+  --ink-muted: #4A4742;
+  --border: #0D0D0D;
+  --shadow: #0D0D0D;
+  --border-w: 3px;
+  --shadow-offset: 6px;
+
+  --brutal-accent: #FF3B00;
+  --brutal-accent-fg: #FFFFFF;
+  --highlight: #FFDE59;
+  --highlight-fg: #0D0D0D;
+  --status-ok: #00E65B;
+  --status-ok-fg: #0D0D0D;
+  --code-fg: #4ADE80;
+
+  /* Domain dynamic accent (changes with 3D Modeling / Sculpting / Game Dev) */
+  --accent: #6366f1;
+  --accent-rgb: 99, 102, 241;
+
+  --viewport-bg: #0D0D11;
+  --viewport-grid: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] {
+  /* Dark Theme: Warm Muted Industrial Brutalism (без ядовитых/кислотных цветов) */
+  --bg: #111214;
+  --surface: #181A1E;
+  --surface-alt: #202328;
+  --ink: #E6E4DF;
+  --ink-muted: #9A9891;
+  --border: #383B42;
+  --shadow: #050506;
+  --border-w: 2px;
+  --shadow-offset: 5px;
+
+  /* Спокойная терракота и тёплый янтарь вместо кислотного оранжевого и жёлтого */
+  --brutal-accent: #D9532F;
+  --brutal-accent-fg: #FAF8F5;
+  --highlight: #D9A441;
+  --highlight-fg: #111214;
+  --status-ok: #34A874;
+  --status-ok-fg: #0B1410;
+  --code-fg: #7DD3A8;
+
+  --viewport-bg: #0A0B0D;
+  --viewport-grid: rgba(230, 228, 223, 0.055);
+}
+
+/* Плавный переход между светлой и тёмной темой */
+html,
+body,
+.b-container,
+.b-surface,
+.b-surface-alt,
+.b-card,
+.b-box,
+.b-btn,
+.b-input,
+.b-nav,
+.b-cell,
+.quick-prompt {
+  transition:
+    background-color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.18s ease,
+    transform 0.14s ease;
+}
+
+html, body {
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Архитектурный каркас и поверхности ---------- */
+.b-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  border-left: var(--border-w) solid var(--border);
+  border-right: var(--border-w) solid var(--border);
+  background-color: var(--bg);
+}
+
+.b-surface {
+  background-color: var(--surface);
+  color: var(--ink);
+}
+
+.b-surface-alt {
+  background-color: var(--surface-alt);
+  color: var(--ink);
+}
+
+.b-ink-bar {
+  background-color: #141416;
+  color: #EAE8E3;
+}
+
+.b-muted {
+  color: var(--ink-muted);
+}
+
+.b-border-t { border-top: var(--border-w) solid var(--border); }
+.b-border-b { border-bottom: var(--border-w) solid var(--border); }
+.b-border-l { border-left: var(--border-w) solid var(--border); }
+.b-border-r { border-right: var(--border-w) solid var(--border); }
+.b-border   { border: var(--border-w) solid var(--border); }
+.b-border-2 { border: 2px solid var(--border); }
+
+/* ---------- Карточки и блоки Brutalism ---------- */
+.b-card {
+  background-color: var(--surface);
+  color: var(--ink);
+  border: var(--border-w) solid var(--border);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--shadow);
+}
+
+.b-card-interactive:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: calc(var(--shadow-offset) + 3px) calc(var(--shadow-offset) + 3px) 0 var(--shadow);
+}
+
+.b-box {
+  background-color: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--border);
+  box-shadow: 4px 4px 0 var(--shadow);
+}
+
+/* ---------- Типографика и плашки ---------- */
+.b-display {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.035em;
+}
+
+.b-mark {
+  background-color: var(--brutal-accent);
+  color: var(--brutal-accent-fg);
+  padding: 0 0.22em;
+  border: 2px solid var(--border);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.b-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  background-color: var(--highlight);
+  color: var(--highlight-fg);
+  border: 2px solid var(--border);
+  box-shadow: 3px 3px 0 var(--shadow);
+}
+
+.b-badge-ink {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.18rem 0.55rem;
+  background-color: var(--ink);
+  color: var(--bg);
+}
+
+.b-status-ok {
+  background-color: var(--status-ok);
+  color: var(--status-ok-fg);
+}
+
+.b-accent-box {
+  background-color: var(--brutal-accent);
+  color: var(--brutal-accent-fg);
+}
+
+/* ---------- Кнопки Brutalism ---------- */
+.b-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border: var(--border-w) solid var(--border);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--shadow);
+  cursor: pointer;
+  user-select: none;
+}
+
+.b-btn:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--shadow);
+}
+
+.b-btn:active:not(:disabled) {
+  transform: translate(5px, 5px);
+  box-shadow: 0 0 0 var(--shadow);
+}
+
+.b-btn-primary {
+  background-color: var(--brutal-accent);
+  color: var(--brutal-accent-fg);
+}
+
+.b-btn-secondary {
+  background-color: var(--surface);
+  color: var(--ink);
+}
+
+.b-btn-highlight {
+  background-color: var(--highlight);
+  color: var(--highlight-fg);
+}
+
+/* ---------- Поля ввода ---------- */
+.b-input {
+  background-color: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--border);
+}
+
+.b-input:focus {
+  outline: none;
+  box-shadow: 4px 4px 0 var(--brutal-accent);
+}
+
+/* ---------- 3D Viewport ---------- */
+.viewport-grid {
+  background-color: var(--viewport-bg);
+  background-image:
+    linear-gradient(var(--viewport-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--viewport-grid) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+  background-position: -1px -1px;
+}
+
+/* ---------- Quick Prompts ---------- */
+.quick-prompt {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  background-color: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--border);
+  box-shadow: 3px 3px 0 var(--shadow);
+}
+
+.quick-prompt:hover:not(:disabled) {
+  background-color: var(--highlight);
+  color: var(--highlight-fg);
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+
+/* ---------- Индикаторы и анимации ---------- */
+@keyframes pulseDot {
+  0%   { box-shadow: 0 0 0 0 rgba(217, 83, 47, 0.55); }
+  70%  { box-shadow: 0 0 0 7px rgba(217, 83, 47, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(217, 83, 47, 0); }
+}
+.pulse-amber { animation: pulseDot 1.8s infinite; }
+
+@keyframes blink { 50% { opacity: 0; } }
+.caret::after {
+  content: '█';
+  margin-left: 4px;
+  animation: blink 0.9s steps(1) infinite;
+  color: var(--brutal-accent);
+}
+
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 32s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.accent-text { color: var(--accent); }
+.accent-bg   { background-color: var(--accent); }
+
+/* ---------- Чат и Markdown ---------- */
+.chat-scroll::-webkit-scrollbar,
+.thin-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.chat-scroll::-webkit-scrollbar-thumb,
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+.chat-scroll::-webkit-scrollbar-track,
+.thin-scroll::-webkit-scrollbar-track {
+  background: var(--surface-alt);
+}
+
+.msg-user-bubble {
+  background-color: var(--highlight);
+  color: var(--highlight-fg);
+  border: 2px solid var(--border);
+  box-shadow: 4px 4px 0 var(--shadow);
+  font-weight: 600;
+}
+
+.msg-ai-bubble {
+  background-color: var(--surface-alt);
+  color: var(--ink);
+  border: 2px solid var(--border);
+  box-shadow: 4px 4px 0 var(--shadow);
+}
+
+.msg-error-bubble {
+  background-color: #FFE5E0;
+  color: #1A0000;
+  border: 2px solid var(--brutal-accent);
+  box-shadow: 4px 4px 0 var(--shadow);
+}
+html[data-theme="dark"] .msg-error-bubble {
+  background-color: #2A1410;
+  color: #F2CFC7;
+}
+
+.msg-offtopic-bubble {
+  background-color: var(--surface-alt);
+  color: var(--ink);
+  border: 2px solid var(--brutal-accent);
+  box-shadow: 4px 4px 0 var(--shadow);
+}
+
+.msg-body p { margin: 0.4rem 0; }
+.msg-body p:first-child { margin-top: 0; }
+.msg-body p:last-child { margin-bottom: 0; }
+.msg-body h3, .msg-body h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0.85rem 0 0.35rem;
+  color: var(--ink);
+}
+.msg-body ul, .msg-body ol { margin: 0.4rem 0 0.4rem 1.25rem; }
+.msg-body ul { list-style: square; }
+.msg-body ol { list-style: decimal; }
+.msg-body li { margin: 0.2rem 0; }
+.msg-body strong { font-weight: 800; }
+.msg-body a {
+  color: var(--brutal-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.msg-body code.inline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82em;
+  font-weight: 700;
+  background-color: var(--surface);
+  color: var(--ink);
+  border: 1.5px solid var(--border);
+  padding: 0.05rem 0.35rem;
+}
+.msg-body pre {
+  position: relative;
+  margin: 0.75rem 0;
+  background: #101215;
+  color: var(--code-fg);
+  border: 2px solid var(--border);
+  box-shadow: 4px 4px 0 var(--shadow);
+  overflow: auto;
+  max-height: 420px;
+}
+.msg-body pre code {
+  display: block;
+  padding: 2.2rem 1rem 0.95rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.79rem;
+  line-height: 1.6;
+  color: #E2E8F0;
+  white-space: pre;
+}
+.msg-body pre .code-lang {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.75rem;
+  font: 800 0.68rem 'JetBrains Mono', monospace;
+  color: var(--highlight);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.msg-body pre .copy-btn {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.4rem;
+  font: 800 0.68rem 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  color: var(--highlight-fg);
+  background: var(--highlight);
+  border: 1.5px solid #0D0D0D;
+  padding: 0.12rem 0.55rem;
+  cursor: pointer;
+}
+.msg-body pre .copy-btn:hover {
+  background: var(--brutal-accent);
+  color: var(--brutal-accent-fg);
+}
+
+select option {
+  background-color: var(--surface);
+  color: var(--ink);
+}
+
+kbd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.1rem 0.4rem;
+  background-color: var(--surface-alt);
+  color: var(--ink);
+  border: 1.5px solid var(--border);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-amber,
+  .marquee-track { animation: none; }
+  html { scroll-behavior: auto; }
+}
