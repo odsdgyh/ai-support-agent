@@ -6,9 +6,8 @@ export const I18N = Object.freeze({
   ru: Object.freeze({
     metaTitle: 'PolyAssist AI — ИИ-ассистент для 3D-моделирования, скульптинга и Game Dev',
     brandSub: '3D PIPELINE // SUPPORT AGENT',
-    navDisciplines: '[01] Дисциплины',
-    navWorkspace: '[02] ИИ-Workspace',
-    navByok: '[03] BYOK Ключ (AQ.…)',
+    navWorkspace: '[01] ИИ-Workspace',
+    navByok: '[02] BYOK Ключ (AQ.…)',
     keyConnected: 'KEY CONNECTED',
     keyNotVerified: 'KEY NOT VERIFIED',
     noKeyConnected: 'NO API KEY CONNECTED',
@@ -41,40 +40,7 @@ export const I18N = Object.freeze({
     vpVerdictTextHtml:
       'Чистая квад-сетка: 2 полюса на осях вращения. Добавьте удерживающие лупы (<code class="font-mono font-bold">Ctrl+R</code>) у полюсов перед <code class="font-mono font-bold">Subdivision Surface</code> (lvl 2), чтобы избежать стягивания шейдинга.',
 
-    sec1Tag: 'SECTION [01] // DOMAIN SYSTEM PROMPTS',
-    sec1Title: 'Три столпа 3D-пайплайна',
-    sec1Sub: 'Под каждую дисциплину маршрутизатор автоматически инжектирует системный промпт профильного сеньор-специалиста.',
-    sec1Hint: 'Нажмите на кейс для теста в 1 клик ↓',
-
-    card1Title: '3D Modeling & Topology',
-    card1Li1: 'Чистая квад-топология, устранение N-гонов и полюсов на криволинейных поверхностях.',
-    card1Li2: 'Расстановка support loops под Subdivision Surface и исправление шейдинга после Boolean.',
-    card1Li3Html: 'Упаковка UV-островов с равномерным Texel Density и автоматизация на Python (<code class="font-mono font-bold">bpy</code>).',
-    card1CaseHtml: '<span class="text-[var(--brutal-accent)]">CASE:</span> Bevel + Boolean shading → Weighted Normals + Auto Smooth 30°',
-    cardRunBtn: 'Запустить этот кейс в агенте',
-
-    card2Title: '3D Digital Sculpting',
-    card2Li1: 'Пайплайн Dynamesh → ZRemesher → Subdivision с чистой проекцией микрорельефа.',
-    card2Li2: 'Запекание High-Poly на Low-Poly без швов и экспорт 32-битных карт смещения (EXR Displacement).',
-    card2Li3: 'Анатомические ориентиры, читаемость силуэта и баланс первичных/вторичных форм.',
-    card2CaseHtml: '<span class="text-[var(--brutal-accent)]">CASE:</span> Швы Normal Map → Единый MikkTSpace + Cage + Flip Y',
-
-    card3Title: 'Game Dev & Shaders',
-    card3Li1: 'Оптимизация Draw Calls, настройка Nanite / Lumen, GPU Instancing и LOD-группы.',
-    card3Li2Html: 'Математика шейдеров HLSL / GLSL (PBR, Fresnel, трипланарный маппинг, <code class="font-mono font-bold">I = max(0, N·L)</code>).',
-    card3Li3: 'Архитектура игровых систем на C# / C++ и профилирование рендер-пайплайна.',
-    card3CaseHtml: '<span class="text-[var(--brutal-accent)]">SHADER:</span> Fresnel Rim → pow(1.0 - saturate(dot(N, V)), k)',
-
-    visionTag: 'MULTIMODAL VISION // PNG · JPEG · WEBP',
-    visionTitle: 'Диагностика по скриншотам вьюпорта',
-    visionText:
-      'Прикрепите до 3 скриншотов сетки, UV-развёртки или графа нод в Shader Graph / Material Editor. ИИ-агент укажет на проблемные полюса, растяжки текселей и узкие места шейдера.',
-    guardrailTag: 'STRICT 3D GUARDRAIL',
-    guardrailTitle: 'Защита от оффтопа и промпт-инъекций',
-    guardrailText:
-      'Агент консультирует только по 3D, рендеру и Game Dev. Нецелевые вопросы и попытки сменить системную роль отклоняются без засорения истории диалога.',
-
-    sec2Tag: 'SECTION [02] // INTERACTIVE 3D WORKSPACE',
+    sec2Tag: 'SECTION [01] // INTERACTIVE 3D WORKSPACE',
     sec2Title: 'Рабочее пространство агента',
     sec2Sub: 'Выберите профильную 3D-дисциплину — запрос уйдёт напрямую в Google AI Studio с вашим ключом и системным промптом эксперта.',
     domainLabel: 'Специализация (System Prompt)',
@@ -112,7 +78,7 @@ export const I18N = Object.freeze({
     shortcutsHintHtml: '<kbd>Enter</kbd> отправить · <kbd>Shift+Enter</kbd> строка · <kbd>⌘K</kbd> ключ · <kbd>⌘J</kbd> тема',
     scopeCounterPrefix: 'ТОЛЬКО 3D И GAME DEV · ',
 
-    sec3Tag: 'SECTION [03] // ZERO-TRUST BYOK VAULT',
+    sec3Tag: 'SECTION [02] // ZERO-TRUST BYOK VAULT',
     sec3Title: 'Ключ Google AI Studio за 3 шага',
     sec3SubHtml:
       'Вы платите Google напрямую по своему тарифу, а ключ никогда не покидает ваш браузер — кроме прямых запросов к <code class="font-mono font-bold">generativelanguage.googleapis.com</code>.',
@@ -189,9 +155,8 @@ export const I18N = Object.freeze({
   en: Object.freeze({
     metaTitle: 'PolyAssist AI — AI Support Agent for 3D Modeling, Sculpting & Game Dev',
     brandSub: '3D PIPELINE // SUPPORT AGENT',
-    navDisciplines: '[01] Disciplines',
-    navWorkspace: '[02] AI Workspace',
-    navByok: '[03] BYOK Key (AQ.…)',
+    navWorkspace: '[01] AI Workspace',
+    navByok: '[02] BYOK Key (AQ.…)',
     keyConnected: 'KEY CONNECTED',
     keyNotVerified: 'KEY NOT VERIFIED',
     noKeyConnected: 'NO API KEY CONNECTED',
@@ -224,40 +189,7 @@ export const I18N = Object.freeze({
     vpVerdictTextHtml:
       'Clean quad mesh: 2 poles on rotation axes. Add support loops (<code class="font-mono font-bold">Ctrl+R</code>) near poles before <code class="font-mono font-bold">Subdivision Surface</code> (lvl 2) to prevent shading pinch.',
 
-    sec1Tag: 'SECTION [01] // DOMAIN SYSTEM PROMPTS',
-    sec1Title: 'Three Pillars of the 3D Pipeline',
-    sec1Sub: 'For each discipline, the router automatically injects a dedicated Senior Technical Artist system prompt.',
-    sec1Hint: 'Click any case to test in 1 click ↓',
-
-    card1Title: '3D Modeling & Topology',
-    card1Li1: 'Clean quad topology, eliminating N-gons and poles on curved surfaces.',
-    card1Li2: 'Support loops for Subdivision Surface and fixing shading artifacts after Boolean.',
-    card1Li3Html: 'UV island packing with uniform Texel Density and Python automation (<code class="font-mono font-bold">bpy</code>).',
-    card1CaseHtml: '<span class="text-[var(--brutal-accent)]">CASE:</span> Bevel + Boolean shading → Weighted Normals + Auto Smooth 30°',
-    cardRunBtn: 'Run this case in agent',
-
-    card2Title: '3D Digital Sculpting',
-    card2Li1: 'Dynamesh → ZRemesher → Subdivision pipeline with clean micro-detail projection.',
-    card2Li2: 'Seamless High-to-Low poly baking and 32-bit EXR Displacement map export.',
-    card2Li3: 'Anatomical landmarks, silhouette readability, and primary/secondary form balance.',
-    card2CaseHtml: '<span class="text-[var(--brutal-accent)]">CASE:</span> Normal Map Seams → Unified MikkTSpace + Cage + Flip Y',
-
-    card3Title: 'Game Dev & Shaders',
-    card3Li1: 'Draw Call optimization, Nanite / Lumen setup, GPU Instancing, and LOD groups.',
-    card3Li2Html: 'HLSL / GLSL shader math (PBR, Fresnel, triplanar mapping, <code class="font-mono font-bold">I = max(0, N·L)</code>).',
-    card3Li3: 'C# / C++ gameplay architecture and render pipeline profiling.',
-    card3CaseHtml: '<span class="text-[var(--brutal-accent)]">SHADER:</span> Fresnel Rim → pow(1.0 - saturate(dot(N, V)), k)',
-
-    visionTag: 'MULTIMODAL VISION // PNG · JPEG · WEBP',
-    visionTitle: 'Viewport Screenshot Diagnostics',
-    visionText:
-      'Attach up to 3 screenshots of your wireframe, UV layout, or Shader Graph / Material Editor nodes. The AI agent will spot problematic poles, UV stretch, and shader bottlenecks.',
-    guardrailTag: 'STRICT 3D GUARDRAIL',
-    guardrailTitle: 'Off-Topic & Prompt-Injection Protection',
-    guardrailText:
-      'The agent only answers 3D, rendering, and Game Dev questions. Off-topic requests and role-override attempts are rejected without polluting conversation history.',
-
-    sec2Tag: 'SECTION [02] // INTERACTIVE 3D WORKSPACE',
+    sec2Tag: 'SECTION [01] // INTERACTIVE 3D WORKSPACE',
     sec2Title: 'Agent Workspace',
     sec2Sub: 'Select a 3D specialization — your request goes straight to Google AI Studio with your key and expert system prompt.',
     domainLabel: 'Specialization (System Prompt)',
@@ -295,7 +227,7 @@ export const I18N = Object.freeze({
     shortcutsHintHtml: '<kbd>Enter</kbd> send · <kbd>Shift+Enter</kbd> newline · <kbd>⌘K</kbd> key · <kbd>⌘J</kbd> theme',
     scopeCounterPrefix: '3D & GAME DEV ONLY · ',
 
-    sec3Tag: 'SECTION [03] // ZERO-TRUST BYOK VAULT',
+    sec3Tag: 'SECTION [02] // ZERO-TRUST BYOK VAULT',
     sec3Title: 'Google AI Studio Key in 3 Steps',
     sec3SubHtml:
       'You pay Google directly on your own tier, and your key never leaves your browser — except for direct requests to <code class="font-mono font-bold">generativelanguage.googleapis.com</code>.',
